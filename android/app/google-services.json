@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "96354871752",
+    "project_id": "mytech-535f2",
+    "storage_bucket": "mytech-535f2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:96354871752:android:17f9d8d7e20d1b4b9cb8fd",
+        "android_client_info": {
+          "package_name": "com.example.scheduler"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkMvsRCoHbNIctIadaBf2n3P8BItu_aWQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
