@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:scheduler/Auth/loginpage.dart';
 import 'package:scheduler/scheduler/scheduler_page.dart';
 
 class StatusPage extends StatelessWidget {
@@ -35,6 +37,17 @@ class StatusPage extends StatelessWidget {
               leading: Icon(Icons.home),
               title: Text('Home'),
             ),
+            Row(children: [
+              ElevatedButton(onPressed: ()async{
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context)=>Loginpage()),
+                );
+              },
+             child: Text('Logout')),
+             Icon(Icons.logout)
+            ],),
           ],
         ),
       ),
@@ -47,7 +60,7 @@ class StatusPage extends StatelessWidget {
         ),
         title: Center(
           child: Text(
-            'Xeritech',
+            'MYtech',
             style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.w500,
@@ -95,7 +108,7 @@ class AppTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Xeritech',
+      'MYtech',
       style: GoogleFonts.poppins(
         fontSize: 26,
         fontWeight: FontWeight.w500,

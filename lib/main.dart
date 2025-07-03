@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scheduler/Status/status.dart';
+import 'package:scheduler/Auth/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor:Color(0xFFECECEC)  ),
-      home: const StatusPage(), // Initial screen
+      home: const Wrapper(), // Initial screen
     );
   }
 }
