@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'widgets/date_selector.dart';
 import 'widgets/time_selector.dart';
-
-
-
 class SchedulerPage extends StatefulWidget {
   const SchedulerPage({super.key});
 
