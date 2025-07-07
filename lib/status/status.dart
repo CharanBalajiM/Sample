@@ -5,7 +5,7 @@ import 'package:scheduler/scheduler/scheduler_page.dart';
 import 'package:scheduler/Auth/loginpage.dart';
 import 'package:scheduler/status/quickaction.dart';
 import 'package:scheduler/status/shedulestatus.dart';
-import 'package:scheduler/status/valvestatus.dart';
+import 'package:scheduler/status/widgets/valve_status.dart';
 
 class StatusPage extends StatefulWidget {
   const StatusPage({super.key});
@@ -146,7 +146,7 @@ _pages = <Widget>[
         const SizedBox(height: 25),
         Column(
           children: const [
-            Valvestatus(),
+            ValveStatus(),
             SizedBox(height: 25),
             Schedulestatus(),
             SizedBox(height: 25),
