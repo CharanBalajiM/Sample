@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'widgets/date_selector.dart';
-import 'widgets/time_selector.dart';
+import 'package:scheduler/scheduler/widgets/date_time.dart';
+
 class SchedulerPage extends StatefulWidget {
   const SchedulerPage({super.key});
 
@@ -9,197 +11,97 @@ class SchedulerPage extends StatefulWidget {
   State<SchedulerPage> createState() => _SchedulerPageState();
 }
 
-class ScheduleEntry {
-  final DateTime dateTime;
-
-  ScheduleEntry(this.dateTime);
-}
-
 class _SchedulerPageState extends State<SchedulerPage> {
-  DateTime? selectedDate;
-  int selectedHour = 12;
-  int? selectedMinute;
-  bool isAm = true;
-  List<DateTime> _savedSchedules = [];
-
-
-String _formatSelectedDateTime() {
-  if (selectedDate == null || selectedMinute == null) {
-    return 'Please select date and time';
-  }
-
-  int hour = selectedHour;
-  if (!isAm && hour != 12) hour += 12;
-  if (isAm && hour == 12) hour = 0;
-
-  final fullDateTime = DateTime(
-    selectedDate!.year,
-    selectedDate!.month,
-    selectedDate!.day,
-    hour,
-    selectedMinute!,
-  );
-
-  return 'Selected: ${DateFormat('MMMM d, y – hh:mm a').format(fullDateTime)}';
-}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Schedule"),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-
-            const Text(
-              'Schedule Date and Time',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 20),
-
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white,
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 4),
-                ],
-              ),
-              child: Column(
-                children: [
-                  DateSelector(
-                    onDateChanged: (date) {
-                      setState(() => selectedDate = date);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  TimeSelector(
-                    onTimeChanged: (hour, minute, am) {
-                      setState(() {
-                        selectedHour = hour;
-                        selectedMinute = minute;
-                        isAm = am;
-                      });
-                    },
-                  ),
-
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                _formatSelectedDateTime(),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              
-            ),
-
-            ElevatedButton(
-              onPressed: () {
-                if (selectedDate == null || selectedMinute == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Center(child: Text("Please select date and time")),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                // Convert to 24hr format
-                int hour = selectedHour;
-                if (!isAm && hour != 12) hour += 12;
-                if (isAm && hour == 12) hour = 0;
-
-                final fullDateTime = DateTime(
-                  selectedDate!.year,
-                  selectedDate!.month,
-                  selectedDate!.day,
-                  hour,
-                  selectedMinute!,
-                );
-
-                setState(() {
-                  _savedSchedules.add(fullDateTime);
-                });
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Center(
-                      child: Text("Schedule saved: ${DateFormat('MMM d, y – hh:mm a').format(fullDateTime)}"),
-                    ),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-              child: const Text('Save Schedule'),
-            ),
-
-            const SizedBox(height: 20),
-            Text('Upcoming Schedules',style: TextStyle(
-              fontSize: 16,
+        appBar: AppBar(
+          title: Text(
+            'Scheduler',
+            style: GoogleFonts.poppins(
+              fontSize: 20
             ),),
-            Container(
-              height: 200,
-              width: 300,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 4),
-                ],),
-              child: _savedSchedules.isEmpty
-                ?const Center(child: Text('No Schedules added'),)
-                : Builder(
-                  builder: (context) {
-                    return ListView.builder(
-                      itemCount: _savedSchedules.length,
-                      itemBuilder: (context, index) {
-                        final entry = _savedSchedules[index];
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                DateFormat('MMM d, y – hh:mm a').format(entry),
-                                style: const TextStyle(fontSize: 20),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                setState(() {
-                                  _savedSchedules.removeAt(index);
-                                });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Schedule Deleted')),
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                    
-                  }
-                )
-            ),
-          ],
+          backgroundColor: Color(0xFFECECEC),
+        ),
+        body: SingleChildScrollView(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Date_Time(),
+      const SizedBox(height: 15),
+      Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Text(
+          'Upcoming Schedules',
+          style: GoogleFonts.poppins(fontSize: 16),
         ),
       ),
+      const SizedBox(height: 10),
+      StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('Schedules')
+            .orderBy('start')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('No Schedules yet'),
+            );
+          }
+
+          final schedules = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: schedules.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              final doc = schedules[index];
+              final start = DateTime.parse(doc['start']);
+              final end = DateTime.parse(doc['end']);
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff5f5f5),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 5,
+                        offset: Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Start: ${DateFormat('dd MMM yyyy – hh:mm a').format(start)}',
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                      Text(
+                        'End: ${DateFormat('dd MMM yyyy – hh:mm a').format(end)}',
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    ],
+  ),
+),
     );
   }
 }
