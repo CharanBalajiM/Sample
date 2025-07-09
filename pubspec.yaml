@@ -67,6 +67,7 @@ flutter:
   assets:
     - asset/img/profile.jpg
     - asset/img/cropped_circle_image.png
+    - asset/img/line.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

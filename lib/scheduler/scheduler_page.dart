@@ -65,35 +65,52 @@ class _SchedulerPageState extends State<SchedulerPage> {
               final start = DateTime.parse(doc['start']);
               final end = DateTime.parse(doc['end']);
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xfff5f5f5),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 5,
-                        offset: Offset(2, 2),
-                      ),
-                    ],
+              return Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                              '${DateFormat('hh:mm a').format(start)}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 137, 143, 254)),
+                            ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Start: ${DateFormat('dd MMM yyyy – hh:mm a').format(start)}',
-                        style: GoogleFonts.poppins(fontSize: 14),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 137, 143, 254),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 5,
+                            offset: Offset(2, 2),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'End: ${DateFormat('dd MMM yyyy – hh:mm a').format(end)}',
-                        style: GoogleFonts.poppins(fontSize: 14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Start: ${DateFormat('dd MMM yyyy – hh:mm a').format(start)}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.white),
+                          ),
+                          Text(
+                            'End: ${DateFormat('dd MMM yyyy – hh:mm a').format(end)}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.white),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               );
             },
           );
