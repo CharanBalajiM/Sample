@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class Date_Time extends StatelessWidget {
-  const Date_Time({super.key});
+  const Date_Time({super.key, required Null Function(dynamic date) onDateSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +103,6 @@ void addschedule(BuildContext context){
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(height: 10,),
-                    Text('${DateFormat('dd MMMM yyyy').format(StartDate)} ${StartTime.format(context)}'),
-                    SizedBox(width: 20,),
                     Center(
                       child: ElevatedButton(
                         onPressed: ()async{
@@ -132,7 +129,7 @@ void addschedule(BuildContext context){
               Text('Schedule will start on ${DateFormat('dd MMMM yyyy').format(StartDate)} at ${StartTime.format(context)}'),
               SizedBox(height: 10,),
               Text(
-                'Ends Timing:',
+                'End Timing:',
                 style: GoogleFonts.inter(
                   fontSize:18,
                   color: const Color.fromARGB(255, 38, 38, 38),
@@ -141,9 +138,6 @@ void addschedule(BuildContext context){
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(height: 10,),
-                    Text('${DateFormat('dd MMMM yyyy').format(EndDate)} ${EndTime.format(context)}'),
-                    SizedBox(width: 20,),
                     Center(
                       child: ElevatedButton(
                         onPressed: ()async{

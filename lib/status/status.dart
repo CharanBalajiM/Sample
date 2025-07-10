@@ -17,18 +17,21 @@ class StatusPage extends StatefulWidget {
 class _StatusPageState extends State<StatusPage> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _pages;
+// REMOVE _pages and initState entirely
 
-  @override
-  void initState() {
-    super.initState();
-_pages = <Widget>[
-  _statusMainContent(),
-  const SizedBox.shrink(), // Nothing for Schedule tab
-  const Center(child: Icon(Icons.settings, size: 150)),
-];
-
+Widget _getPage(int index) {
+  switch (index) {
+    case 0:
+      return _statusMainContent(); // now called fresh every time
+    case 1:
+      return const SchedulerPage();
+    case 2:
+      return const Center(child: Icon(Icons.settings, size: 150));
+    default:
+      return const Center(child: Text('Page not found'));
   }
+}
+
   @override
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -98,10 +101,11 @@ _pages = <Widget>[
       ),
 
       // Main content switches based on selected index
-      body: _pages[_selectedIndex],
+      body: _getPage(_selectedIndex),
 
       // Bottom navigation bar
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
@@ -118,17 +122,12 @@ _pages = <Widget>[
         ],
         currentIndex: _selectedIndex,
         onTap: (index) {
-  if (index == 1) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SchedulerPage()),
-    );
-  } else {
+
     setState(() {
       _selectedIndex = index;
     });
-  }
-},
+  },
+
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
       ),
