@@ -6,6 +6,7 @@ import 'package:scheduler/Auth/loginpage.dart';
 import 'package:scheduler/status/quickaction.dart';
 import 'package:scheduler/status/shedulestatus.dart';
 import 'package:scheduler/status/widgets/valve_status.dart';
+import 'package:scheduler/Valve_panel/valvepanel.dart';
 
 class StatusPage extends StatefulWidget {
   const StatusPage({super.key});
@@ -24,9 +25,10 @@ Widget _getPage(int index) {
     case 0:
       return _statusMainContent(); // now called fresh every time
     case 1:
-      return const SchedulerPage();
+      return Valvepanel() ;
     case 2:
-      return const Center(child: Icon(Icons.settings, size: 150));
+      return const SchedulerPage();
+
     default:
       return const Center(child: Text('Page not found'));
   }
@@ -112,12 +114,12 @@ Widget _getPage(int index) {
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.schedule),
-            label: 'Schedule',
+            icon: Icon(Icons.plumbing ),
+            label: 'Valve Panel',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.schedule),
+            label: 'Schedule',
           ),
         ],
         currentIndex: _selectedIndex,

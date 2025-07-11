@@ -41,8 +41,14 @@ class ValveStatus extends StatelessWidget {
             final motor = data['motor'] ?? false;
 
             final anyValveOn = valve1 || valve2 || valve3;
-            final lastMotorOn = data['last_on']?.toDate();
-            final lastMotorOff = data['last_off']?.toDate();
+DateTime? parseTime(dynamic value) {
+  if (value is Timestamp) return value.toDate();
+  if (value is String) return DateTime.tryParse(value);
+  return null;
+}
+
+final lastMotorOn = parseTime(data['last_on']);
+final lastMotorOff = parseTime(data['last_off']);
             String formatTime(DateTime? time) {
               if (time == null) return 'N/A';
               return DateFormat.jm().format(time); // e.g. 12:15 PM
