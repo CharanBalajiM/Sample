@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scheduler/scheduler/scheduler_page.dart';
 import 'package:scheduler/Auth/loginpage.dart';
-import 'package:scheduler/status/quickaction.dart';
+import 'package:scheduler/status/widgets/quickaction.dart';
 import 'package:scheduler/status/widgets/schedule_status.dart';
 import 'package:scheduler/status/widgets/valve_status.dart';
 import 'package:scheduler/Valve_panel/valvepanel.dart';
