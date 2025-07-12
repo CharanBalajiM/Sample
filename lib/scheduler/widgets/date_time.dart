@@ -5,13 +5,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class Date_Time extends StatelessWidget {
-  const Date_Time({super.key, required Null Function(dynamic date) onDateSelected});
+  final Function(DateTime) onDateSelected;
+
+  const Date_Time({
+    super.key,
+    required this.onDateSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
-      final now=DateTime.now();
-      final day=DateFormat('dd').format(now);
-      final month=DateFormat('MMMM').format(now);
+    final now = DateTime.now();
+    final day = DateFormat('dd').format(now);
+    final month = DateFormat('MMMM').format(now);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -19,7 +24,6 @@ class Date_Time extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 20),
           child: Row(
-            
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -29,18 +33,18 @@ class Date_Time extends StatelessWidget {
                       Text(
                         day,
                         style: GoogleFonts.rajdhani(
-                          fontSize: 18,
-                          color: Color.fromARGB(255, 158, 158, 158),
-                          fontWeight: FontWeight.bold
-                        ),),
-                        SizedBox(width: 5,),
+                            fontSize: 18,
+                            color: Color.fromARGB(255, 158, 158, 158),
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 5),
                       Text(
                         month,
                         style: GoogleFonts.rajdhani(
-                          fontSize: 18,
-                          color: Color.fromARGB(255, 158, 158, 158),
-                          fontWeight: FontWeight.bold
-                        ),),
+                            fontSize: 18,
+                            color: Color.fromARGB(255, 158, 158, 158),
+                            fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                   Text(
@@ -48,7 +52,8 @@ class Date_Time extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                    ),)
+                    ),
+                  )
                 ],
               ),
               Padding(
@@ -56,15 +61,15 @@ class Date_Time extends StatelessWidget {
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 148, 185, 99),
-                    side: BorderSide(color: Color(0xffA2CA6C))
+                    side: BorderSide(color: Color(0xffA2CA6C)),
                   ),
-                  onPressed: ()=>addschedule(context),
-                  child:Text(
+                  onPressed: () => addschedule(context),
+                  child: Text(
                     '+ Add Schedule',
                     style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white
-                    ),), ),
+                        fontWeight: FontWeight.w500, color: Colors.white),
+                  ),
+                ),
               )
             ],
           ),
@@ -84,11 +89,13 @@ void addschedule(BuildContext context){
     builder: (context){
       return StatefulBuilder(
         builder: (context,setState)=>AlertDialog(
+          backgroundColor: Color(0xFFECECEC),
           title: Text(
             'Add new schedule',
             style: GoogleFonts.poppins(
 
             ),),
+            
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -112,6 +119,7 @@ void addschedule(BuildContext context){
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                             );
+                            
                             if (pickeddate!=null){
                               setState(()=>StartDate=pickeddate);
                             }
@@ -122,7 +130,11 @@ void addschedule(BuildContext context){
                               setState(()=>StartTime=pickedtime);
                             }
                           },
-                        child: Text('Pick Date and time')),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white
+                          ),
+                        child: Text('Pick Date and time',
+                        style: TextStyle(color: Colors.blue),)),
                     ),
                   ],
                 ),
@@ -157,7 +169,13 @@ void addschedule(BuildContext context){
                               setState(()=>StartTime=pickedtime);
                             }
                           },
-                        child: Text('Pick Date and time')),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white
+                          ),
+                        child: Text('Pick Date and time',
+                        style: TextStyle(
+                          color: Colors.blue
+                        ),)),
                     ),
                   ],
                 ),
@@ -167,7 +185,11 @@ void addschedule(BuildContext context){
                 children: [
                   ElevatedButton(
                     onPressed: ()=>Navigator.pop(context),
-                    child: Text('Clear')),
+                    style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white
+                          ),
+                    child: Text('Clear',
+                    style: TextStyle(color: const Color.fromARGB(255, 209, 112, 112)),)),
                   ElevatedButton(
                     onPressed: ()async{
                       final DateTime fullstart = DateTime(
@@ -197,7 +219,11 @@ void addschedule(BuildContext context){
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Center(child: Text("Submitted Succesfully!"))));
                     },
-                    child: Text('Submit'))
+                    style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue
+                          ),
+                    child: Text('Submit',
+                    style: TextStyle(color: Colors.white),))
                 ],
               )
             ],

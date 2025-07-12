@@ -12,7 +12,7 @@ class ValveStatus extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      height: 95,
+      height: 110,
       width: 325,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -38,8 +38,6 @@ class ValveStatus extends StatelessWidget {
             final valve1 = data['valve1'] ?? false;
             final valve2 = data['valve2'] ?? false;
             final valve3 = data['valve3'] ?? false;
-            final motor = data['motor'] ?? false;
-
             final anyValveOn = valve1 || valve2 || valve3;
 DateTime? parseTime(dynamic value) {
   if (value is Timestamp) return value.toDate();
@@ -73,7 +71,7 @@ final lastMotorOff = parseTime(data['last_off']);
                         anyValveOn ? 'Started at: ${formatTime(lastMotorOn)}':
                                     'Stopped at: ${formatTime(lastMotorOff)}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: Color.fromARGB(255, 122, 122, 122)
                         ),
                       ),

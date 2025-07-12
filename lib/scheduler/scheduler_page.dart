@@ -13,10 +13,64 @@ class SchedulerPage extends StatefulWidget {
 
 class _SchedulerPageState extends State<SchedulerPage> {
   DateTime selectedDate = DateTime.now();
+  Map<String, dynamic>? lastRun;
+  Map<String, dynamic>? nextRun;
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchScheduleSummary();
+  }
+
+void fetchScheduleSummary() async {
+  final now = DateTime.now();
+
+  final snapshot = await FirebaseFirestore.instance.collection('Schedules').get();
+
+  final docs = snapshot.docs.map((doc) {
+    final data = doc.data();
+
+    final start = data['start'] is Timestamp
+        ? (data['start'] as Timestamp).toDate().toLocal()
+        : DateTime.tryParse(data['start'].toString())?.toLocal();
+
+    final end = data['end'] is Timestamp
+        ? (data['end'] as Timestamp).toDate().toLocal()
+        : DateTime.tryParse(data['end'].toString())?.toLocal();
+
+    if (start == null || end == null) return null;
+
+    return {
+      'id': doc.id,
+      'start': start,
+      'end': end,
+    };
+  }).whereType<Map<String, dynamic>>().toList();
+
+  final pastSchedules = docs
+      .where((d) => (d['end'] as DateTime).isBefore(now))
+      .toList()
+    ..sort((a, b) => (b['end'] as DateTime).compareTo(a['end'] as DateTime));
+
+  final futureSchedules = docs
+      .where((d) => (d['start'] as DateTime).isAfter(now))
+      .toList()
+    ..sort((a, b) => (a['start'] as DateTime).compareTo(b['start'] as DateTime));
+
+  // ✅ Only call setState if the widget is still mounted
+  if (!mounted) return;
+
+  setState(() {
+    lastRun = pastSchedules.isNotEmpty ? pastSchedules.first : null;
+    nextRun = futureSchedules.isNotEmpty ? futureSchedules.first : null;
+    loading = false;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
-    // Only keep the date part
     DateTime selectedDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
 
     return Scaffold(
@@ -28,13 +82,35 @@ class _SchedulerPageState extends State<SchedulerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Date_Time(onDateSelected: (date) {  },),
+            Date_Time(onDateSelected: (date) {}),
             const SizedBox(height: 15),
+
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (lastRun != null)
+                    Text(
+                      'Last Run: ${DateFormat('dd MMM, hh:mm a').format(lastRun!['start'])} - ${DateFormat('hh:mm a').format(lastRun!['end'])}',
+                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.blue),
+                    ),
+                  if (nextRun != null)
+                    Text(
+                      'Next Run: ${DateFormat('dd MMM, hh:mm a').format(nextRun!['start'])}',
+                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.green[700]),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 15),
+
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text('Upcoming Schedules', style: GoogleFonts.poppins(fontSize: 16)),
             ),
             const SizedBox(height: 10),
+
             FourteenDaySelector(
               selectedDate: selectedDate,
               onDateSelected: (newDate) {
@@ -43,6 +119,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
                 });
               },
             ),
+
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Schedules')
@@ -62,17 +139,17 @@ class _SchedulerPageState extends State<SchedulerPage> {
                 final docs = snapshot.data!.docs.where((doc) {
                   final startTime = DateTime.parse(doc['start']);
                   return startTime.year == selectedDay.year &&
-                         startTime.month == selectedDay.month &&
-                         startTime.day == selectedDay.day;
+                      startTime.month == selectedDay.month &&
+                      startTime.day == selectedDay.day;
                 }).toList();
 
                 if (docs.isEmpty) {
                   return Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: Text('No schedules for this day',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: const Color.fromARGB(255, 137, 143, 254))),
+                        style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: const Color.fromARGB(255, 137, 143, 254))),
                   );
                 }
 
@@ -88,9 +165,9 @@ class _SchedulerPageState extends State<SchedulerPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Text('${DateFormat('hh:mm a').format(start)}',
-                                style: GoogleFonts.poppins(
-                                      color: const Color.fromARGB(255, 137, 143, 254),
-                                      fontWeight: FontWeight.w500)),
+                            style: GoogleFonts.poppins(
+                                color: const Color.fromARGB(255, 137, 143, 254),
+                                fontWeight: FontWeight.w500)),
                         Padding(
                           padding: const EdgeInsets.all(12),
                           child: Container(
@@ -161,7 +238,7 @@ class FourteenDaySelector extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    DateFormat('E').format(date), // Mon
+                    DateFormat('E').format(date),
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

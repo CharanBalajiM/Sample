@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Valvepanel extends StatefulWidget {
   const Valvepanel({super.key});
 
@@ -10,86 +11,131 @@ class Valvepanel extends StatefulWidget {
 }
 
 class _ValvepanelState extends State<Valvepanel> {
-  bool isToggled = false;
+  bool isToggledValve1 = false;
   bool isToggledValve2 = false;
-
-  @override
-  void get initState {
-    super.initState;
-    fetchValveStatus(); // Fetch Firestore valve1 value on screen load
+  bool isToggledValve3 = false;
+    void initState() {
+    super.initState();
+    fetchValveStatuses();
   }
 
-  // Fetch valve1 value from Firestore
-  void fetchValveStatus() async {
+
+  @override
+  void fetchValveStatuses() async {
     try {
-      final snapshot = await FirebaseFirestore.instance
+      final doc = await FirebaseFirestore.instance
           .collection('valve')
           .doc('valve_status')
           .get();
 
-      if (snapshot.exists) {
-        final data = snapshot.data();
-        if (data != null && data.containsKey('valve1')) {
+      if (doc.exists) {
+        final data = doc.data();
+        if (data != null) {
           setState(() {
-            isToggled = data['valve1'] ?? false;
+            isToggledValve1 = data['valve1'] ?? false;
+            isToggledValve2 = data['valve2'] ?? false;
+            isToggledValve3 = data['valve3'] ?? false;
           });
         }
       }
     } catch (e) {
-      print('Error fetching valve1 status: $e');
+      print('Error fetching valve statuses: $e');
     }
   }
 
-  // Update valve1 in Firestore when toggled
-  void updateValve1Status(bool status) async {
+  void updateValveStatus(String valveKey, bool status) async {
     try {
-      await FirebaseFirestore.instance.collection('valve').doc('valve_status').update({
-        'valve1': status,
-        status ? 'last_on' : 'last_off': DateTime.now().toString(),
+      await FirebaseFirestore.instance
+          .collection('valve')
+          .doc('valve_status')
+          .update({
+        valveKey: status,
+        '${valveKey}_last_${status ? 'on' : 'off'}': DateTime.now(),
       });
-      print('Valve 1 status updated to $status');
+      print('$valveKey updated to $status');
     } catch (e) {
-      print('Error updating valve1: $e');
+      print('Error updating $valveKey: $e');
     }
   }
 
-  void updateValve2Status(bool status) async {
-  try {
-    await FirebaseFirestore.instance
-        .collection('valve')
-        .doc("valve_status")
-        .update({
-          'valve2': status,
-          status ? 'valve2_last_on' : 'valve2_last_off': DateTime.now(),
-        });
-    print('Valve 2 status updated to $status');
-  } catch (e) {
-    print('Error updating valve 2: $e');
+  void showSnackbar(BuildContext context, bool isOn, String label) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label turned ${isOn ? 'ON' : 'OFF'}',
+            style: GoogleFonts.poppins()),
+        backgroundColor: isOn ? Colors.green : Colors.red,
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
-}
-void fetchValve2Status() async {
-  final doc = await FirebaseFirestore.instance
-      .collection('valve')
-      .doc('valve_status')
-      .get();
 
-  if (doc.exists) {
-    final data = doc.data();
-    if (data != null && data.containsKey('valve2')) {
-      setState(() {
-        isToggledValve2 = data['valve2'];
-      });
-    }
+  Widget buildValveCard({
+    required String label,
+    required bool toggled,
+    required void Function(bool) onChanged,
+  }) {
+    return Center(
+      child: Container(
+        width: 250,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 30),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  toggled ? 'asset/gif/valve.gif' : "asset/img/valve_img.png",
+                  width: 40,
+                  height: 40,
+                ),
+                const Spacer(),
+                Switch(
+                  value: toggled,
+                  activeTrackColor: Colors.blue,
+                  inactiveThumbColor: const Color.fromARGB(255, 85, 85, 85),
+                  inactiveTrackColor:
+                      const Color.fromARGB(255, 235, 235, 235),
+                  onChanged: onChanged,
+                ),
+                Text(
+                  toggled ? 'ON' : 'OFF',
+                  style: GoogleFonts.poppins(fontSize: 14),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(label,
+                style: GoogleFonts.poppins(
+                    fontSize: 16, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
+    );
   }
-}
 
-  
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final day = DateFormat('dd').format(now);
     final month = DateFormat('MMMM').format(now);
-
+     @override
+    @override
+   void initState() {
+    super.initState();
+    fetchValveStatuses();
+  }
     return Scaffold(
       appBar: AppBar(
         title: Text('Valve Panel', style: GoogleFonts.poppins(fontSize: 20)),
@@ -98,12 +144,13 @@ void fetchValve2Status() async {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Date
+          // Date Display
           Padding(
-            padding: const EdgeInsets.only(left: 20, top: 20),
+            padding: const EdgeInsets.only(left: 20, top: 0),
             child: Text(
               '$month $day',
-              style: GoogleFonts.poppins(fontSize: 16, color: const Color(0xff666666)),
+              style: GoogleFonts.poppins(
+                  fontSize: 16, color: const Color(0xff666666)),
             ),
           ),
           const SizedBox(height: 10),
@@ -116,16 +163,21 @@ void fetchValve2Status() async {
                 text: TextSpan(
                   children: [
                     const WidgetSpan(
-                        child: Icon(Icons.add_chart, size: 20, color: Colors.blue)),
+                      child: Icon(Icons.add_chart,
+                          size: 20, color: Colors.blue),
+                    ),
                     TextSpan(
-                        text: ' Total valves',
-                        style: GoogleFonts.poppins(fontSize: 16, color: const Color(0xff666666))),
+                      text: ' Total valves',
+                      style: GoogleFonts.poppins(
+                          fontSize: 16, color: const Color(0xff666666)),
+                    ),
                     TextSpan(
-                        text: " 3",
-                        style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: const Color.fromARGB(255, 66, 66, 66),
-                            fontWeight: FontWeight.bold)),
+                      text: " 3",
+                      style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: const Color.fromARGB(255, 66, 66, 66),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ),
@@ -133,16 +185,22 @@ void fetchValve2Status() async {
                 text: TextSpan(
                   children: [
                     const WidgetSpan(
-                        child: Icon(Icons.speed, size: 20, color: Color.fromARGB(255, 207, 83, 45))),
+                      child: Icon(Icons.speed,
+                          size: 20,
+                          color: Color.fromARGB(255, 207, 83, 45)),
+                    ),
                     TextSpan(
-                        text: ' Valve Pressure',
-                        style: GoogleFonts.poppins(fontSize: 16, color: const Color(0xff666666))),
+                      text: ' Valve Pressure',
+                      style: GoogleFonts.poppins(
+                          fontSize: 16, color: const Color(0xff666666)),
+                    ),
                     TextSpan(
-                        text: " 20",
-                        style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: const Color.fromARGB(255, 66, 66, 66),
-                            fontWeight: FontWeight.bold)),
+                      text: " 20",
+                      style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: const Color.fromARGB(255, 66, 66, 66),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ),
@@ -151,222 +209,39 @@ void fetchValve2Status() async {
 
           const SizedBox(height: 25),
 
-          // Toggle Valve Card
-          Center(
-            child: Container(
-              width: 250,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4)),
-                ],
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 30),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Valve Row
-                  Row(
-                    children: [
-                      Image.asset(
-                        isToggled ? 'asset/gif/valve.gif' : "asset/img/valve_img.png",
-                        width: 40,
-                        height: 40,
-                      ),
-                      const Spacer(),
-                      Switch(
-                        value: isToggled,
-                        activeTrackColor: Colors.blue,
-                        inactiveThumbColor: const Color.fromARGB(255, 85, 85, 85),
-                        inactiveTrackColor: const Color.fromARGB(255, 235, 235, 235),
-                        onChanged: (value) {
-                          setState(() {
-                            isToggled = value;
-                          });
-                          updateValve1Status(value);
-            
-                          if (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Valve 1 turned ON ', style: GoogleFonts.poppins()),
-                                backgroundColor: Colors.green,
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Valve 1 turned OFF ', style: GoogleFonts.poppins()),
-                                backgroundColor: Colors.red,
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                          }
-                        }
-            
-                      ),
-                      Text(
-                        isToggled ? 'ON' : 'OFF',
-                        style: GoogleFonts.poppins(fontSize: 14),
-                      ),
-                    ],
-                  ),
-            
-                  const SizedBox(height: 10),
-                  
-                  Text("Valve 1",
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
-                ],
-              ),
-            ),
+          // Valve 1
+          buildValveCard(
+            label: "Valve 1",
+            toggled: isToggledValve1,
+            onChanged: (value) {
+              setState(() => isToggledValve1 = value);
+              updateValveStatus('valve1', value);
+              showSnackbar(context, value, 'Valve 1');
+            },
           ),
           const SizedBox(height: 25),
 
-          // Toggle Valve Card
-          Center(
-            child: Container(
-              width: 250,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4)),
-                ],
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 30),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Valve Row
-                  Row(
-                    children: [
-                      Image.asset(
-                        isToggled ? 'asset/gif/valve.gif' : "asset/img/valve_img.png",
-                        width: 40,
-                        height: 40,
-                      ),
-                      const Spacer(),
-                      Switch(
-                        value: isToggled,
-                        activeTrackColor: Colors.blue,
-                        inactiveThumbColor: const Color.fromARGB(255, 85, 85, 85),
-                        inactiveTrackColor: const Color.fromARGB(255, 235, 235, 235),
-                        onChanged: (value) {
-                          setState(() {
-                            isToggled = value;
-                          });
-                          updateValve1Status(value);
-            
-                          if (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Valve 1 turned ON ', style: GoogleFonts.poppins()),
-                                backgroundColor: Colors.green,
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Valve 1 turned OFF ', style: GoogleFonts.poppins()),
-                                backgroundColor: Colors.red,
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                          }
-                        }
-            
-                      ),
-                      Text(
-                        isToggled ? 'ON' : 'OFF',
-                        style: GoogleFonts.poppins(fontSize: 14),
-                      ),
-                    ],
-                  ),
-            
-                  const SizedBox(height: 10),
-                  
-                  Text("Valve 2",
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
-                ],
-              ),
-            ),
+          // Valve 2
+          buildValveCard(
+            label: "Valve 2",
+            toggled: isToggledValve2,
+            onChanged: (value) {
+              setState(() => isToggledValve2 = value);
+              updateValveStatus('valve2', value);
+              showSnackbar(context, value, 'Valve 2');
+            },
           ),
           const SizedBox(height: 25),
 
-          // Toggle Valve Card
-          Center(
-            child: Container(
-              width: 250,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 4)),
-                ],
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 30),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Valve Row
-                  Row(
-                    children: [
-                      Image.asset(
-                        isToggled ? 'asset/gif/valve.gif' : "asset/img/valve_img.png",
-                        width: 40,
-                        height: 40,
-                      ),
-                      const Spacer(),
-                      Switch(
-                        value: isToggled,
-                        activeTrackColor: Colors.blue,
-                        inactiveThumbColor: const Color.fromARGB(255, 85, 85, 85),
-                        inactiveTrackColor: const Color.fromARGB(255, 235, 235, 235),
-                        onChanged: (value) {
-                          setState(() {
-                            isToggled = value;
-                          });
-                          updateValve1Status(value);
-            
-                          if (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Valve 1 turned ON ', style: GoogleFonts.poppins()),
-                                backgroundColor: Colors.green,
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Valve 1 turned OFF ', style: GoogleFonts.poppins()),
-                                backgroundColor: Colors.red,
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                          }
-                        }
-            
-                      ),
-                      Text(
-                        isToggled ? 'ON' : 'OFF',
-                        style: GoogleFonts.poppins(fontSize: 14),
-                      ),
-                    ],
-                  ),
-            
-                  const SizedBox(height: 10),
-                  
-                  Text("Valve 3",
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
-                ],
-              ),
-            ),
+          // Valve 3
+          buildValveCard(
+            label: "Valve 3",
+            toggled: isToggledValve3,
+            onChanged: (value) {
+              setState(() => isToggledValve3 = value);
+              updateValveStatus('valve3', value);
+              showSnackbar(context, value, 'Valve 3');
+            },
           ),
         ],
       ),

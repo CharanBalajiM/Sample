@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:scheduler/scheduler/scheduler_page.dart';
 import 'package:scheduler/Auth/loginpage.dart';
 import 'package:scheduler/status/quickaction.dart';
-import 'package:scheduler/status/shedulestatus.dart';
+import 'package:scheduler/status/widgets/schedule_status.dart';
 import 'package:scheduler/status/widgets/valve_status.dart';
 import 'package:scheduler/Valve_panel/valvepanel.dart';
 
@@ -18,7 +18,6 @@ class StatusPage extends StatefulWidget {
 class _StatusPageState extends State<StatusPage> {
   int _selectedIndex = 0;
 
-// REMOVE _pages and initState entirely
 
 Widget _getPage(int index) {
   switch (index) {
@@ -40,48 +39,52 @@ Widget _getPage(int index) {
 
     return Scaffold(
       key: scaffoldKey,
-      drawer: Drawer(
-        backgroundColor: const Color(0xFFECECEC),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Container(
-              height: 100,
-              color: const Color(0xFFECECEC),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(top: 25, left: 10),
-              child: const Center(
-                child: Text(
-                  'Drawer Header',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
+      drawer: SizedBox(
+        width: 220, // Set your desired drawer width
+        child: Drawer(
+          backgroundColor: const Color(0xFFECECEC),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Container(
+                height: 100,
+                color: const Color(0xFFECECEC),
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(top: 25, left: 10),
+                child: const Center(
+                  child: Text(
+                    'More',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-            ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => Loginpage()),
-                    );
-                  },
-                  child: const Text('Logout'),
-                ),
-                const Icon(Icons.logout)
-              ],
-            ),
-          ],
+              Divider(color: Colors.black,),
+              const ListTile(
+                leading: Icon(Icons.home),
+                title: Text('Home'),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+
+              ),
+              ListTile(
+          leading: const Icon(Icons.logout_rounded),
+          title: const Text('Logout'),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          onTap: () async {
+            await FirebaseAuth.instance.signOut();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Loginpage()),
+            );
+          },
+        ),
+            ],
+          ),
         ),
       ),
+
       appBar: AppBar(
         backgroundColor: const Color(0xFFECECEC),
         elevation: 0,
@@ -149,9 +152,9 @@ Widget _getPage(int index) {
           children: const [
             ValveStatus(),
             SizedBox(height: 25),
-            Schedulestatus(),
+            ScheduleStatus(),
             SizedBox(height: 25),
-            Schedulestatus(),
+            weather_status(),
           ],
         ),
       ],
@@ -185,6 +188,69 @@ class wishes extends StatelessWidget {
               fontSize: 15,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+class weather_status extends StatelessWidget {
+  const weather_status({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      height: 110,
+      width: 325,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: Color(0xFfD7D7D7),
+        )
+      ),
+      child: Column(
+        crossAxisAlignment:CrossAxisAlignment.start ,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 20,left: 40),
+            child: Row(
+              children: [
+                Text("Weather Status",
+                style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w400),),
+                SizedBox(width: 40,),
+                  Row(
+                    children: [
+                      Text("Weather:",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color.fromARGB(255, 122, 122, 122)
+                              ),
+                            ),
+                      Text("Good",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color.fromARGB(255, 114, 215, 103)
+                              ),
+                            ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10,),
+          Padding(
+            padding: const EdgeInsets.only(left: 80),
+            child: Row(
+              children: [
+                Text('It may rain soon',
+                style:TextStyle(
+                  color: Color(0xFF666666)
+                  ) ,),
+                  Icon(Icons.water_drop_outlined,color: Colors.blue,)
+              ],
+            ),
+          )
         ],
       ),
     );
